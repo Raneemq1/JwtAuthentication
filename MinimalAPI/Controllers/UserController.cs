@@ -34,12 +34,14 @@ namespace MinimalAPI.Controllers
         {
             if (user == null)
                 return BadRequest("User object is null");
-
+            byte[] encPassword = new byte[user.UserPassword.Length];
+            encPassword = System.Text.Encoding.UTF8.GetBytes(user.UserPassword);
+            user.UserPassword = Convert.ToBase64String(encPassword);
             JwtTokenGenerator generator = new JwtTokenGenerator(_config);
             var token = generator.GenerateToken(user);
 
             if (generator.ValidateToken(token))
-            {
+            {    
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
                 return Ok(new { Token = token });
